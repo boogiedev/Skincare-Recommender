@@ -16,7 +16,7 @@ import time
 
 
 # Function for statically scraping item brand, name, # loves without needing selenium
-def sephora_parse_item(item_url:str) -> tuple:
+def get_static_meta(item_url:str) -> tuple:
     '''Returns item/product brand, name, # loves from a given sephora url'''
     # GET Request to URL
     page = requests.get(item_url)
