@@ -42,6 +42,33 @@ def sephora_scrape(url:str, n_reviews=100, verified=True, headless=False, verbos
 
 'FINAL USER SCRAPE'
 
+def get_user_reviews(item_url:str, n_reviews=100, verified=True, headless=False, verbose=True) -> str:
+    '''Returns collection of user and reviews created from scraping n_reviews reviews from product page for either verified or unverified reviews'''
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument("--headless")
+        
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(item_url)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
+#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#     time.sleep(2)
+
+    if verified:
+        driver.find_element_by_xpath('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/label/div[1]').click()
+        time.sleep(2)
+    
+    review_click_six(driver, n_reviews)
+    
+    time.sleep(1)
+    
+    user_reviews = get_review_box(driver, n_reviews, verbose)
+    
+    driver.close()
+    driver.quit()
+    
+    return user_reviews
 
 
 
@@ -190,7 +217,7 @@ def review_click_six(driver:webdriver, n_reviews:int=100) -> None:
             break
             
 def get_review_text(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
-    '''Given a webdriver object, will all loaded reviews on page'''
+    '''Given a webdriver object, will collect all loaded reviews on page'''
     res = []
     start = 5
     temp = '/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/div[1]/div[2]/div[1]'
@@ -213,3 +240,56 @@ def get_review_text(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
     return res
             
 
+    
+    
+def get_review_box(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
+    '''Given a webdriver object, will collect all loaded reviews and respective users on page'''
+    res = []
+    start = 5
+    
+    # Get Product Name and Brand
+    page = requests.get(driver.current_url)
+    # Create BS4 Object
+    html = BeautifulSoup(page.text, "html.parser")
+    # Find Name and Brand
+    item_info = [x.get_text() for x in html.find("h1", attrs={"data-comp":True})]
+    print(f'Item Info Found: {item_info[0]} {item_info[1]}')
+    
+    # Paths to each feature
+    user_meta_path = ('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/div[1]/div[1]/button/div[2]/div', False, None)
+    name_path = ('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/div[1]/div[1]/button/div[1]/div[2]/div[1]/span', False, None)
+    rating_path = ('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/div[1]/div[2]/div[1]/div[1]/div', True, 'aria-label')
+    review_path = ('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/div[1]/div[2]/div[1]', False, None)
+    
+    all_paths = [name_path, user_meta_path, rating_path, review_path]
+    
+    for i in range(n_reviews):
+        successes = 0
+        user_data = []
+        for path, is_attr, attr in all_paths:
+            res_val = ''
+            try:
+                text = driver.find_element_by_xpath(path % str(start))
+                if is_attr:
+                    text = text.get_attribute(attr)
+                    
+                successes += 1
+                
+                try:
+                    text = text.text
+                except:
+                    pass
+            except:
+                text = f'Review #{i} Error'
+            
+            user_data.append(text)
+            
+        res.append(user_data + item_info)
+        start += 2
+        time.sleep(0.5)
+        
+        
+        if verbose:
+            print(f'Review #{i}: {successes}/{len(all_paths)}')
+
+    return res
