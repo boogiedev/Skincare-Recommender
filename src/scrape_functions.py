@@ -72,10 +72,6 @@ def get_user_reviews(item_url:str, n_reviews=100, verified=True, headless=False,
 
 
 
-
-
-
-
 def parse_skin_type(text_block:bs4.element) -> str:
     '''Returns list of skin types from a given text block, runs though pipeline to ensure only valid types are taken'''
     html = text_block
