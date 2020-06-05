@@ -37,6 +37,8 @@ def sephora_scrape(url:str, n_reviews=100, verified=True, headless=False, verbos
     # Get item corpus (review text)
     reviews = get_n_reviews(url, n_reviews=n_reviews, verified=verified, headless=headless, verbose=verbose)
     
+    time.sleep(10)
+    
     return brand, name, n_loves, stars, ingredients, skin_types, num_reviews, star_dist, reviews
 
 
@@ -52,8 +54,8 @@ def get_user_reviews(item_url:str, n_reviews=100, verified=True, headless=False,
     driver.get(item_url)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(2)
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     time.sleep(2)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
 
     if verified:
         driver.find_element_by_xpath('/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/label/div[1]').click()
@@ -64,6 +66,9 @@ def get_user_reviews(item_url:str, n_reviews=100, verified=True, headless=False,
     time.sleep(1)
     
     user_reviews = get_review_box(driver, n_reviews, verbose)
+    
+    time.sleep(10)
+    
     
     driver.close()
     driver.quit()
@@ -203,14 +208,21 @@ def review_click_six(driver:webdriver, n_reviews:int=100) -> None:
     '''Given a webdriver object, will click the "6 more reviews" button in order to load page'''
     start = 16
     temp = '/html/body/div[3]/div[5]/main/div[2]/div[2]/div/div[1]/div/div[%s]/button'
+    
     for x in range(n_reviews//6):
         path = temp % str(start)
-        start += 12
-        try:
-            driver.find_element_by_xpath(path).click()
-            time.sleep(1)
-        except:
-            break
+        print(f'XPath Attempt at {path[:-15]}\nFill: {start}')
+        success = False
+        while not success:
+            try:
+                driver.find_element_by_xpath(path).click()
+                time.sleep(3)
+                start += 12
+                success = True
+            except:
+                time.sleep(1)
+            
+
             
 def get_review_text(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
     '''Given a webdriver object, will collect all loaded reviews on page'''
@@ -232,6 +244,7 @@ def get_review_text(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
         except:
             res.append(text)
         start += 2
+        time.sleep(0.2)
         
     return res
             
