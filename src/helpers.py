@@ -16,8 +16,8 @@ def re_match_target(trg:str, to_match:str) -> bool:
     pattern  = re.compile(f'{to_match}', re.I)
     return bool(pattern.search(trg))
 
-def re_max(val:str) -> np.float:
+def re_max(val:str, cast:type=np.float) -> np.float:
     """Returns maximum number in a string using regex"""
     search = re.findall('\d+', val) 
-    nums = map(np.float, search) 
+    nums = map(cast, search) 
     return max(nums)

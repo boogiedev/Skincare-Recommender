@@ -16,12 +16,10 @@ import os
 import time
 
 import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 from nltk.corpus import stopwords
 
-# Import Custom Modules
-from src.helpers import *
 
 
 'FINAL ITEM SCRAPE'
@@ -302,3 +300,37 @@ def get_review_box(driver:webdriver, n_reviews:int=100, verbose=True) -> str:
             print(f'Review #{i}: {successes}/{len(all_paths)}')
 
     return res
+
+
+def get_num_reviews(url:str, headless=True) -> tuple:
+    '''Returns item/product features from scoll-loaded section of given sephora url'''
+    # Init Chrome Driver Options
+    chrome_options = Options()  
+    # Run headless arg to avoid GUI
+    if headless:
+#         chrome_options.add_argument("--no-sandbox")
+#         chrome_options.add_argument("--disable-dev-shm-usage")
+#         chrome_options.add_argument("--window-size=1920x1080")
+#         chrome_options.add_argument("start-maximised")
+        chrome_options.add_argument("--headless")
+
+    # Init Driver Instance -> load options
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    # Call url via driver
+    driver.get(url)
+    
+    # Scroll down to load REVEIW section
+    time.sleep(1)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
+
+    
+    path = '/html/body/div[3]/div[5]/main/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div[2]/a/span'
+    
+    num_reviews = driver.find_element_by_xpath(path).text
+    
+    driver.close()
+    driver.quit()
+    
+    return num_reviews
