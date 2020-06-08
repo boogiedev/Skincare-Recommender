@@ -57,16 +57,15 @@ targets = list(zip(urls, review_nums, [False for _ in range(len(urls))]))
 print(targets)
 
 if __name__ == '__main__':
-    pass
-#     # Init multiprocessing.Pool()
-#     pool = mp.Pool(mp.cpu_count())
+    # Init multiprocessing.Pool()
+    pool = mp.Pool(mp.cpu_count())
 
-#     # Mutate Function with Options
+    # Mutate Function with Options
 
-#     # `pool.apply` to target function
-#     results = pool.map(get_num_reviews, urls)
+    # `pool.apply` to target function
+    results = pool.map(get_num_reviews, urls)
 
-#     # Close Pool
-#     pool.close()    
+    # Close Pool
+    pool.close()    
 
-#     print(results)
+    print(results)
