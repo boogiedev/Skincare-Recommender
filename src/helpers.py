@@ -67,3 +67,14 @@ def create_timestamp(time_string:str, return_delta:bool=False, day_start:str='5 
         res = date
         
     return res
+
+def re_parse_str(string:str, sep_:str='') -> str:
+    '''Given a string object, returns only alphabetical string, joined by sep_'''
+    return sep_.join(re.findall("[a-zA-Z]+", string))
+
+def parse_review_string(review:list) -> str:
+    '''Given a list of review strings, parse out main review'''
+    res = ''
+    if review:
+        res = max(review, key=len)
+    return res

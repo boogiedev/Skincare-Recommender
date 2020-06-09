@@ -334,3 +334,22 @@ def get_num_reviews(url:str, headless=True) -> tuple:
     driver.quit()
     
     return num_reviews
+
+
+def get_price(url:str, headless:bool=False) -> str:
+    price_path = '/html/body/div[3]/div[5]/main/div[2]/div[1]/div/div/div[2]/div[1]/div[2]/div[1]'
+
+    chrome_options = Options()  
+    if headless:
+        chrome_options.add_argument("--headless")
+
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(url)
+    time.sleep(1)
+
+    price = driver.find_element_by_xpath(price_path).text
+
+    driver.close()
+    driver.quit()
+    
+    return price
