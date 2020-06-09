@@ -78,3 +78,14 @@ def parse_review_string(review:list) -> str:
     if review:
         res = max(review, key=len)
     return res
+
+def clean_ingredients(ingredients:list) -> list:
+    '''Returns cleaned ingredients list from given one, cleaned in accordance to custom rules'''
+    # Copy list to avoid collision
+    tmp = ingredients.copy()
+    # Standardize water as first ingredient
+    water_match = lambda x: re_match_target(x, to_match='water')
+    tmp[0] = 'water' if water_match(tmp[0]) else tmp[0]
+    
+    return sorted(tmp)
+    
