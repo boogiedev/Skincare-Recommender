@@ -161,3 +161,12 @@ def set_map_effects(df:pd.DataFrame, chem_df:pd.DataFrame) -> None:
             df.at[idx, key] = val
     return
 
+
+def flag_condition(rev_list:list, flag_list:list) -> bool:
+    res = 0
+    review = " ".join(rev_list)
+    for flag in flag_list:
+        res = int(re_match_target(review, flag))
+        if res:
+            break
+    return res
