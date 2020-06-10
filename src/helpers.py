@@ -170,3 +170,10 @@ def flag_condition(rev_list:list, flag_list:list) -> bool:
         if res:
             break
     return res
+
+def print_topics(model, count_vectorizer, n_top_words):
+    words = count_vectorizer.get_feature_names()
+    for topic_idx, topic in enumerate(model.components_):
+        print("\nTopic #%d:" % topic_idx)
+        print(" ".join([words[i]
+                        for i in topic.argsort()[:-n_top_words - 1:-1]]))
