@@ -160,3 +160,4 @@ def set_map_effects(df:pd.DataFrame, chem_df:pd.DataFrame) -> None:
         for key, val in effect_dict.items():
             df.at[idx, key] = val
     return
+
