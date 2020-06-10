@@ -36,6 +36,50 @@ def rec_item_from_user_meta(ref_df, skintone, skintype, eyecolor, haircolor, per
     print('Based on your features, these are the top products for you:')
     return recommendations
 
+# LightFM Collaborative Filtering Functions
+
+def create_user_dict(interactions):
+    user_id = list(interactions.index)
+    user_dict = {}
+    counter = 0 
+    for i in user_id:
+        user_dict[i] = counter
+        counter += 1
+    return user_dict
+
+def create_item_dict(df, id_col, name_col):
+    item_dict ={}
+    for i in df.index:
+        item_dict[(df.loc[i, id_col])] = df.loc[i, name_col]
+    return item_dict
+
+def recommendation_user(model, interactions, user_id, user_dict,
+                               item_dict, threshold = 0, nrec_items = 10, show = True):
+
+    n_users, n_items = interactions.shape
+    user_x = user_dict[user_id]
+    scores = pd.Series(model.predict(user_x,np.arange(n_items)))
+    scores.index = interactions.columns
+    scores = list(pd.Series(scores.sort_values(ascending=False).index))
+
+    known_items = list(pd.Series(interactions.loc[user_id,:] \
+                                 [interactions.loc[user_id,:] > threshold].index).sort_values(ascending=False))
+    #print(scores)
+    scores = [x for x in scores if x not in known_items]
+    return_score_list = scores[0:nrec_items]
+    #print(return_score_list)
+    known_items = list(pd.Series(known_items).apply(lambda x: item_dict[x]))
+    scores = list(pd.Series(return_score_list).apply(lambda x: item_dict[x]))
+
+    if show == True:
+        print(scores)
+
+    return scores
+
+
+
+
+
 
 
 # Modeling Functions
@@ -66,7 +110,7 @@ def draw_clusters(clustered, max_users, max_movies):
         if len(d) > 9:
             print('cluster # {}'.format(cluster_id))
             print('# of users in cluster: {}.'.format(n_users_in_cluster), '# of users in plot: {}'.format(n_users_in_plot))
-            fig = plt.figure(figsize=(15,4))
+            fig = plt.figure(figsize=(15,4), dpi=100)
             ax = plt.gca()
 
             ax.invert_yaxis()
@@ -96,7 +140,7 @@ def draw_clusters(clustered, max_users, max_movies):
             plt.setp(ax.get_xticklabels(), rotation=90, fontsize=9)
             plt.tick_params(axis='both', which='both', bottom='off', top='off', left='off', labelbottom='off', labelleft='off') 
             #print('cluster # {} \n(Showing at most {} users and {} movies)'.format(cluster_id, max_users, max_movies))
-
+            plt.savefig(f'media/visualizations/cluster_{cluster_id}.png', dpi=100)
             plt.show()
 
             
